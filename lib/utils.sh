@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CODE_BASE=/Users/guoshijiang/babylonWorkSpace/babylon-mac-local  # 需要修改成你的 babylon mac local 的地址
+export CODE_BASE=/Users/Sandwich/wallet/babylon-mac-local # 需要修改成你的 babylon mac local 的地址
 
 export ETC_DIR=/conf
 
@@ -129,8 +129,10 @@ function init_config() {
   sed -i '' "s/0.0.0.0:26657/0.0.0.0:26667/g" ${CODE_BASE}/testnets/babylondhome/node1/babylond/config/config.toml
   sed -i '' "s/0.0.0.0:26656/0.0.0.0:26666/g" ${CODE_BASE}/testnets/babylondhome/node1/babylond/config/config.toml
   sed -i '' "s/26660/26670/g" ${CODE_BASE}/testnets/babylondhome/node1/babylond/config/config.toml
-  find "${CODE_BASE}/testnets" -type f -name "*.yml" -exec sed -i '' "s/\/Users\/guoshijiang/\/Users\/guoshijiang\/babylonWorkSpace\/babylon-mac-local/g" {} +
-  find "${CODE_BASE}/testnets" -type f -name "*.conf" -exec sed -i '' "s/\/Users\/guoshijiang/\/Users\/guoshijiang\/babylonWorkSpace\/babylon-mac-local/g" {} +
+
+  # 替换所有配置文件中的硬编码路径
+  find "${CODE_BASE}/testnets" -type f \( -name "*.yml" -o -name "*.conf" \) -exec sed -i '' "s|/Users/guoshijiang/babylonWorkSpace/babylon-mac-local|${CODE_BASE}|g" {} +
+  find "${CODE_BASE}/testnets" -type f \( -name "*.yml" -o -name "*.conf" \) -exec sed -i '' "s|/Users/guoshijiang|${CODE_BASE}|g" {} +
 
   # bitcoin conf
   echo "Start create bitcoin data directory and initialize bitcoin configuration file"
@@ -354,10 +356,10 @@ function deploy_babylon_contract() {
 function bitcoin_init() {
   if [[ "$BITCOIN_NETWORK" == "regtest" ]]; then
     echo "Creating a wallet..."
-    bitcoin-cli -${BITCOIN_NETWORK} -rpcuser="$RPC_USER" -rpcpassword="$RPC_PASS" createwallet "$WALLET_NAME" false false "$WALLET_PASS" false false
+    bitcoin-cli -${BITCOIN_NETWORK} -rpcuser="$RPC_USER" -rpcpassword="$RPC_PASS" createwallet "$WALLET_NAME" false false "$WALLET_PASS" false true
 
     echo "Creating a wallet for btcstaker..."
-    bitcoin-cli -${BITCOIN_NETWORK} -rpcuser="$RPC_USER" -rpcpassword="$RPC_PASS" createwallet "$BTCSTAKER_WALLET_NAME" false false "$WALLET_PASS" false false
+    bitcoin-cli -${BITCOIN_NETWORK} -rpcuser="$RPC_USER" -rpcpassword="$RPC_PASS" createwallet "$BTCSTAKER_WALLET_NAME" false false "$WALLET_PASS" false true
 
     echo "Generating 110 blocks for the first coinbases to mature..."
     bitcoin-cli -regtest -rpcuser="$RPC_USER" -rpcpassword="$RPC_PASS" -rpcwallet="$WALLET_NAME" -generate 110
